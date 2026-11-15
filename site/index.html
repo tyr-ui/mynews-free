@@ -15,7 +15,7 @@
   <div class="app">
     <header class="masthead">
       <div class="brand"><span class="logo" aria-hidden="true">M.</span><div><strong>MyNews</strong><small>話題と重要ニュースを、まとめて。</small></div></div>
-      <button class="icon-button" id="refresh" aria-label="最新データを読み込む" title="再読み込み">↻</button>
+      <button class="icon-button" id="refresh" aria-label="公開済みの最新データを確認" title="公開データを確認">↻</button>
     </header>
     <main>
       <section class="hero" aria-labelledby="hero-title">
@@ -23,6 +23,12 @@
         <h1 id="hero-title">SNSを開かず、<br><em>今の話題</em>をつかむ。</h1>
         <p>野球の各社報道から、政治・経済、IT・AI、ネットの話題まで。</p>
         <div id="summary" class="summary-grid"><div><b>—</b><span>表示可能な記事</span></div><div><b>—</b><span>話題シグナル</span></div><div><b>—</b><span>収集元エラー</span></div></div>
+      </section>
+      <section class="update-panel" aria-label="ニュースの更新">
+        <p id="load-status" role="status">公開データを確認中…</p>
+        <button id="apply-news" type="button" hidden>更新された一覧を表示</button>
+        <p class="update-hint">収集予定：毎日7:15・12:15・20:15（日本時間）。表示中は5分ごと、画面に戻った時にも公開データを確認します。</p>
+        <details><summary>今すぐ新しい記事を収集する</summary><p>右上の↻は、収集済みの公開データを読み直します。今この時点の情報を新たに収集するには、GitHubで下のリンクを開き、「Run workflow」→「Run workflow」を押してください。GitHubへのログインとこのリポジトリの実行権限が必要です。</p><a id="collect-now" href="https://github.com/tyr-ui/mynews-free/actions/workflows/update.yml" target="_blank" rel="noopener noreferrer">GitHubで収集を実行する ↗</a><p>実行が緑の成功表示になった後、MyNewsへ戻って↻を押すと公開結果を確認できます。定期収集や公開には遅延が生じる場合があります。</p></details>
       </section>
       <section class="controls" aria-label="表示設定">
         <div id="category-tabs" class="category-tabs" role="group" aria-label="ニュースの分野"></div>
@@ -61,7 +67,7 @@
     <div class="reader-toolbar"><h2 id="reader-setup-title">ページ内で本文を読む</h2><button id="reader-setup-close" type="button" autofocus>閉じる</button></div>
     <div class="reader-article"><p>無料のSafari拡張を一度設定すると、対応記事の本文をMyNews内で読めます。取得した本文はこの端末だけに保存します。</p>
       <ol><li><a href="https://apps.apple.com/jp/app/userscripts/id1463298887" target="_blank" rel="noopener noreferrer">無料のUserscriptsをインストール</a>し、一度アプリを開きます。</li><li>iPhoneの「設定 → アプリ → Safari → 機能拡張」でUserscriptsを有効にします。</li><li>Safariで<a href="./mynews-reader.user.js" target="_blank" rel="noopener noreferrer">MyNews用の補助スクリプト</a>を開き、Safariの機能拡張メニューからUserscriptsを選んでインストールします。</li><li>MyNewsをSafariで開き直し、Userscriptsの実行を許可します。「本文読書：接続済み」になれば準備完了です。媒体への接続許可が表示された場合は、利用する媒体だけ許可してください。</li></ol>
-      <p>ChatGPT内ブラウザーやホーム画面版では、Safari拡張が接続できない場合があります。本文読書はSafariで利用してください。</p>
+      <p>ニュース一覧と更新はポルンでも利用できます。ポルンは本文取得に必要な通信APIに未対応のため、無料での本文読書にはSafariを利用してください。ChatGPT内ブラウザーやホーム画面版でもSafari拡張が接続できない場合があります。</p>
       <p>初回の本文取得には通信が必要です。「先読み」が有効なら先頭3件を取得します（1回の利用で最大12件）。本文は最大150件・7日間、端末内に保存します。会員限定記事や取得拒否がある記事は元記事で確認できます。</p>
       <p><a href="./reader-help.html" target="_blank" rel="noopener noreferrer">詳しい設定方法・対応範囲</a></p>
     </div>

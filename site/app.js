@@ -4,6 +4,9 @@ const STORAGE = 'mynews-preferences-v1';
 const SIGNAL_KINDS = new Set(['search_trend', 'popular_link', 'social_post']);
 const CATEGORIES = [['all', '全分野'], ['野球', '野球'], ['漫画', '漫画・アニメ'], ['IT', 'IT'], ['AI', 'AI'], ['政治', '政治'], ['経済', '経済'], ['国際', '国際'], ['社会', '社会'], ['話題', '話題']];
 const MEDIA = ['スポニチ', 'サンスポ', 'デイリー', 'スポーツ報知', '日刊スポーツ', '産経新聞', 'Full-Count', 'BASEBALL KING'];
+const AUTO_CHECK_MS = 5 * 60 * 1000;
+const RESUME_CHECK_MS = 60 * 1000;
+let feedRequest = false, lastCheckAttempt = 0, pendingNews = null;
 const state = {items: [], failures: [], sources: [], updatedAt: null, view: 'all', category: 'all', publisher: 'all', sort: 'latest', search: '', unread: false, visible: 36, saved: new Set(), read: new Set()};
 const $ = id => document.getElementById(id);
 try {
@@ -179,7 +182,7 @@ function render() {
   $('summary').replaceChildren(...[[count, '表示可能な記事'], [signals, '話題シグナル'], [state.failures.length, '収集元エラー']].map(([num, label]) => {
     const box = el('div'); box.append(el('b', null, String(num)), el('span', null, label)); return box;
   }));
-  $('last-updated').textContent = state.updatedAt ? `最終更新 ${fmt(state.updatedAt)} JST` : '初回収集前';
+  $('last-updated').textContent = state.updatedAt ? `収集完了 ${fmt(state.updatedAt)} JST` : '初回収集前';
   const notice = $('notice');
   if (state.failures.length) {
     notice.hidden = false;
@@ -187,23 +190,62 @@ function render() {
   } else notice.hidden = true;
   window.MyNewsReader.schedule(all.slice(0, state.visible));
 }
-async function loadNews() {
+function applyNews(result) {
+  state.items = result.items.filter(item => item && item.id && item.title && isSafeUrl(item.url));
+  state.updatedAt = result.updated_at;
+  state.failures = Array.isArray(result.failed_sources) ? result.failed_sources : [];
+  state.sources = Array.isArray(result.source_status) ? result.source_status : [];
+  pendingNews = null;
+  $('apply-news').hidden = true;
+  renderSourceHealth();
+  render();
+}
+async function loadNews({automatic = false} = {}) {
+  if (feedRequest || (automatic && document.hidden)) return;
+  if (automatic && navigator.onLine === false) {
+    $('load-status').textContent = 'オフラインです。表示中の記事は、最後に取得できたデータです。';
+    return;
+  }
+  feedRequest = true;
+  lastCheckAttempt = Date.now();
   $('refresh').disabled = true;
+  $('load-status').textContent = '公開データを確認中…';
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20000);
   try {
-    const response = await fetch(NEWS_URL + '?t=' + Date.now(), {cache: 'no-store'});
+    // Revalidate the HTTP cache so unchanged feeds can use conditional requests.
+    const response = await fetch(NEWS_URL, {cache: 'no-cache', signal: controller.signal});
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const result = await response.json();
-    if (!Array.isArray(result.items)) throw new Error('Invalid news file');
-    state.items = result.items.filter(item => item && item.id && item.title && isSafeUrl(item.url));
-    state.updatedAt = result.updated_at || null;
-    state.failures = Array.isArray(result.failed_sources) ? result.failed_sources : [];
-    state.sources = Array.isArray(result.source_status) ? result.source_status : [];
-    renderSourceHealth();
-    render();
+    if (!Array.isArray(result.items) || !Number.isFinite(Date.parse(result.updated_at))) throw new Error('Invalid news file');
+    const offline = response.headers?.get('X-MyNews-Cache') === 'offline';
+    const newestKnown = pendingNews?.updated_at || state.updatedAt;
+    if (newestKnown && Date.parse(result.updated_at) < Date.parse(newestKnown)) {
+      $('load-status').textContent = pendingNews ? 'より新しい公開データを取得済みです。表示ボタンで反映できます。' : '公開先の反映待ちです。新しい収集日時の記事を表示したままにしています。';
+      return;
+    }
+    if (!state.updatedAt || (!automatic && !offline)) {
+      if (state.updatedAt !== result.updated_at) applyNews(result);
+      else if (pendingNews) applyNews(pendingNews);
+    } else if (!offline && state.updatedAt !== result.updated_at) {
+      pendingNews = result;
+      const known = new Set(state.items.map(item => item.id));
+      const added = result.items.filter(item => item && item.id && item.title && isSafeUrl(item.url) && !known.has(item.id)).length;
+      $('apply-news').textContent = `更新された一覧を表示（新着${added}件）`;
+      $('apply-news').hidden = false;
+    }
+    $('load-status').textContent = offline ? '通信できないため端末に保存された一覧を表示しています。最新情報の確認は未完了です。' :
+      pendingNews ? '新しい公開データがあります。読んでいる位置を保つため、表示ボタンで反映します。' : `公開データ確認 ${fmt(new Date().toISOString())} JST（収集日時は上部に表示）`;
   } catch (error) {
-    const notice = $('notice'); notice.hidden = false;
-    notice.textContent = 'データの読み込みに失敗しました。ネット接続・Pagesの公開設定を確認してください。';
-  } finally { $('refresh').disabled = false; }
+    $('load-status').textContent = state.updatedAt ? '公開データを確認できませんでした。表示中の記事を保持しています。通信が戻ったら↻で再確認できます。' : 'データを読み込めませんでした。ネット接続を確認し、↻でもう一度お試しください。';
+  } finally {
+    clearTimeout(timeout);
+    feedRequest = false;
+    $('refresh').disabled = false;
+  }
+}
+function checkOnReturn() {
+  if (!document.hidden && Date.now() - lastCheckAttempt >= RESUME_CHECK_MS) loadNews({automatic: true});
 }
 addFilterButtons($('category-tabs'), CATEGORIES, 'category');
 addFilterButtons($('publisher-tabs'), [['all', '全媒体'], ...MEDIA.map(name => [name, name]), ['others', 'その他']], 'publisher');
@@ -216,7 +258,17 @@ $('search').addEventListener('input', e => {state.search = e.target.value.trim()
 document.querySelectorAll('[data-sort]').forEach(button => button.addEventListener('click', () => {state.sort = button.dataset.sort; state.visible = 36; render();}));
 $('unread').addEventListener('change', e => {state.unread = e.target.checked; render();});
 $('load-more').addEventListener('click', () => {state.visible += 36; render();});
-$('refresh').addEventListener('click', loadNews);
+$('refresh').addEventListener('click', () => loadNews());
+$('apply-news').addEventListener('click', () => {
+  if (!pendingNews) return;
+  applyNews(pendingNews);
+  $('load-status').textContent = '更新された一覧を表示しました。';
+});
+document.addEventListener('visibilitychange', checkOnReturn);
+window.addEventListener('pageshow', event => {if (event.persisted) checkOnReturn();});
+window.addEventListener('online', () => loadNews({automatic: true}));
+window.addEventListener('offline', () => {$('load-status').textContent = 'オフラインです。表示中の記事は、最後に取得できたデータです。';});
+setInterval(() => loadNews({automatic: true}), AUTO_CHECK_MS);
 document.addEventListener('mynews-reader-opened', event => {
   state.read.add(event.detail.id); persist();
   document.querySelectorAll('[data-article-id]').forEach(card => {if (card.dataset.articleId === event.detail.id) card.classList.add('read');});
