@@ -1,14 +1,14 @@
 // Offline-first app shell, network-first news feed; bounded cache keys.
-const CACHE = 'mynews-v2';
+const CACHE = 'mynews-v3';
 const ASSETS = ['./', './index.html', './style.css', './app.js', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('mynews-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== location.origin) return;
+  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== location.origin || !new URL(event.request.url).pathname.startsWith(new URL(self.registration.scope).pathname)) return;
   const u = new URL(event.request.url);
   const isNews = u.pathname.endsWith('/data/news.json');
   const cacheKey = isNews ? new Request(u.origin + u.pathname) : event.request;

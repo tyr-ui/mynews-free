@@ -14,6 +14,7 @@ concurrency:
 jobs:
   update-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -27,7 +28,7 @@ jobs:
       - name: テスト
         run: python -m unittest discover -s tests -v
       - name: ニュース取得
-        run: python src/collect.py
+        run: python -m src.collect
       - name: 履歴をGitHubに保存
         run: |
           git config user.name 'github-actions[bot]'

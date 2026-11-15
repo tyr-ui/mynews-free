@@ -21,25 +21,31 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-row"><span class="eyebrow">YOUR DAILY BRIEF</span><span id="last-updated" class="timestamp">データ確認中</span></div>
         <h1 id="hero-title">SNSを開かず、<br><em>今の話題</em>をつかむ。</h1>
-        <p>検索急上昇、ネットの人気記事、Bluesky、ニュース媒体を横断して一覧表示。</p>
+        <p>野球の各社報道から、政治・経済、IT・AI、ネットの話題まで。</p>
         <div id="summary" class="summary-grid"><div><b>—</b><span>表示可能な記事</span></div><div><b>—</b><span>話題シグナル</span></div><div><b>—</b><span>収集元エラー</span></div></div>
       </section>
       <section class="controls" aria-label="表示設定">
+        <div id="category-tabs" class="category-tabs" role="group" aria-label="ニュースの分野"></div>
+        <div id="publisher-section" class="publisher-section" hidden>
+          <p class="filter-label">野球の媒体</p>
+          <div id="publisher-tabs" class="publisher-tabs" role="group" aria-label="野球の媒体"></div>
+        </div>
         <div class="tabs" role="group" aria-label="表示対象">
-          <button type="button" class="tab active" data-view="focus" aria-pressed="true">注目</button>
-          <button type="button" class="tab" data-view="all" aria-pressed="false">すべて</button>
+          <button type="button" class="tab active" data-view="all" aria-pressed="true">すべて</button>
+          <button type="button" class="tab" data-view="focus" aria-pressed="false">注目</button>
           <button type="button" class="tab" data-view="signal" aria-pressed="false">話題のみ</button>
           <button type="button" class="tab" data-view="saved" aria-pressed="false">保存</button>
         </div>
         <div class="filter-row">
           <label class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="キーワード・メディア・テーマで検索" autocomplete="off" aria-label="記事検索"></label>
-          <select id="category" aria-label="分野を選択"><option value="all">全分野</option><option value="野球">野球</option><option value="漫画">漫画・アニメ</option><option value="IT">IT</option><option value="AI">AI</option><option value="政治">政治</option><option value="経済">経済</option><option value="国際">国際</option><option value="社会">社会</option><option value="話題">その他の話題</option></select>
         </div>
-        <div class="sort-row"><label><input type="checkbox" id="unread"> 既読を除外</label><label>並び替え <select id="sort" aria-label="並び替え"><option value="score">おすすめ順</option><option value="latest">新着順</option></select></label></div>
+        <div class="sort-row"><label><input type="checkbox" id="unread"> 既読を除外</label><div class="sort-tabs" role="group" aria-label="並び替え"><button type="button" data-sort="latest" class="active" aria-pressed="true">新着順</button><button type="button" data-sort="score" aria-pressed="false">おすすめ順</button></div></div>
       </section>
       <section class="feed" aria-labelledby="list-title">
         <div class="section-head"><h2 id="list-title">ニュース一覧</h2><span id="shown-count">0件</span></div>
+        <p id="feed-context" class="feed-context"></p>
         <div id="notice" role="status" class="notice" hidden></div>
+        <details class="source-status"><summary id="source-summary">収集元の状況を見る</summary><p>今回取得＝重複除去前。保持＝過去96時間の掲載件数。同じ記事が複数の収集元に含まれる場合があります。</p><div id="source-health"></div></details>
         <div id="cards" class="cards" aria-live="polite"></div>
         <button id="load-more" class="load-more" type="button" hidden>さらに表示</button>
       </section>
