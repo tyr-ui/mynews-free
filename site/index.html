@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="野球、漫画、IT、AI、政治、社会の話題をまとめる個人用ニュースリーダー">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="stylesheet" href="./style.css">
+  <title>MyNews - 今の話題がわかる</title>
+</head>
+<body>
+  <div class="app">
+    <header class="masthead">
+      <div class="brand"><span class="logo" aria-hidden="true">M.</span><div><strong>MyNews</strong><small>話題と重要ニュースを、まとめて。</small></div></div>
+      <button class="icon-button" id="refresh" aria-label="最新データを読み込む" title="再読み込み">↻</button>
+    </header>
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-row"><span class="eyebrow">YOUR DAILY BRIEF</span><span id="last-updated" class="timestamp">データ確認中</span></div>
+        <h1 id="hero-title">SNSを開かず、<br><em>今の話題</em>をつかむ。</h1>
+        <p>検索急上昇、ネットの人気記事、Bluesky、ニュース媒体を横断して一覧表示。</p>
+        <div id="summary" class="summary-grid"><div><b>—</b><span>表示可能な記事</span></div><div><b>—</b><span>話題シグナル</span></div><div><b>—</b><span>収集元エラー</span></div></div>
+      </section>
+      <section class="controls" aria-label="表示設定">
+        <div class="tabs" role="group" aria-label="表示対象">
+          <button type="button" class="tab active" data-view="focus" aria-pressed="true">注目</button>
+          <button type="button" class="tab" data-view="all" aria-pressed="false">すべて</button>
+          <button type="button" class="tab" data-view="signal" aria-pressed="false">話題のみ</button>
+          <button type="button" class="tab" data-view="saved" aria-pressed="false">保存</button>
+        </div>
+        <div class="filter-row">
+          <label class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="キーワード・メディア・テーマで検索" autocomplete="off" aria-label="記事検索"></label>
+          <select id="category" aria-label="分野を選択"><option value="all">全分野</option><option value="野球">野球</option><option value="漫画">漫画・アニメ</option><option value="IT">IT</option><option value="AI">AI</option><option value="政治">政治</option><option value="経済">経済</option><option value="国際">国際</option><option value="社会">社会</option><option value="話題">その他の話題</option></select>
+        </div>
+        <div class="sort-row"><label><input type="checkbox" id="unread"> 既読を除外</label><label>並び替え <select id="sort" aria-label="並び替え"><option value="score">おすすめ順</option><option value="latest">新着順</option></select></label></div>
+      </section>
+      <section class="feed" aria-labelledby="list-title">
+        <div class="section-head"><h2 id="list-title">ニュース一覧</h2><span id="shown-count">0件</span></div>
+        <div id="notice" role="status" class="notice" hidden></div>
+        <div id="cards" class="cards" aria-live="polite"></div>
+        <button id="load-more" class="load-more" type="button" hidden>さらに表示</button>
+      </section>
+      <footer><p>※Google検索の急上昇・ブックマーク人気・Bluesky投稿は、事実確認済みのニュースとは限りません。</p><p>本アプリは見出しと出典リンクのまとめです。AI生成の解説・X全体のトレンド取得は未実装です。</p><p>保存・既読はこの端末のブラウザ内のみ。公開ページには非公開情報を入力しないでください。</p></footer>
+    </main>
+  </div>
+  <script src="./app.js" defer></script>
+</body>
+</html>
