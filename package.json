@@ -1,0 +1,11 @@
+{
+  "name": "mynews-free",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/reader.test.cjs"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.2.8",
+    "jsdom": "26.1.0"
+  }
+}

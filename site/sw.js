@@ -1,6 +1,6 @@
 // Offline-first app shell, network-first news feed; bounded cache keys.
-const CACHE = 'mynews-v3';
-const ASSETS = ['./', './index.html', './style.css', './app.js', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const CACHE = 'mynews-v4';
+const ASSETS = ['./', './index.html', './style.css', './app.js', './reader-core.js', './reader.js', './reader-help.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });

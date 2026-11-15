@@ -40,6 +40,7 @@
           <label class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="キーワード・メディア・テーマで検索" autocomplete="off" aria-label="記事検索"></label>
         </div>
         <div class="sort-row"><label><input type="checkbox" id="unread"> 既読を除外</label><div class="sort-tabs" role="group" aria-label="並び替え"><button type="button" data-sort="latest" class="active" aria-pressed="true">新着順</button><button type="button" data-sort="score" aria-pressed="false">おすすめ順</button></div></div>
+        <div class="reading-tools"><span id="reader-capability">本文読書：接続確認中</span><div><label><input type="checkbox" id="reader-prefetch" checked> 先頭3件を先読み</label><button id="reader-setup" type="button">設定</button></div></div>
       </section>
       <section class="feed" aria-labelledby="list-title">
         <div class="section-head"><h2 id="list-title">ニュース一覧</h2><span id="shown-count">0件</span></div>
@@ -49,9 +50,24 @@
         <div id="cards" class="cards" aria-live="polite"></div>
         <button id="load-more" class="load-more" type="button" hidden>さらに表示</button>
       </section>
-      <footer><p>※Google検索の急上昇・ブックマーク人気・Bluesky投稿は、事実確認済みのニュースとは限りません。</p><p>本アプリは見出しと出典リンクのまとめです。AI生成の解説・X全体のトレンド取得は未実装です。</p><p>保存・既読はこの端末のブラウザ内のみ。公開ページには非公開情報を入力しないでください。</p></footer>
+      <footer><p>※Google検索の急上昇・ブックマーク人気・Bluesky投稿は、事実確認済みのニュースとは限りません。</p><p>AI生成の解説・X全体のトレンド取得は未実装です。本文読書はSafariの補助機能に対応した公開記事が対象です。</p><p>保存・既読・本文キャッシュはこの端末のブラウザ内のみ。本文を公開リポジトリへ送信する機能はありません。</p></footer>
     </main>
   </div>
+  <dialog id="reader-dialog" class="reader-dialog" aria-labelledby="reader-title">
+    <div class="reader-toolbar"><button id="reader-close" type="button" autofocus>閉じる</button><span id="reader-format"></span><button id="reader-font" type="button" aria-pressed="false">文字を大きく</button></div>
+    <article class="reader-article"><p id="reader-meta" class="reader-meta"></p><h2 id="reader-title"></h2><p id="reader-state" role="status" class="reader-state"></p><div id="reader-body" class="reader-body"></div><a id="reader-original" class="reader-original" href="#" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">元記事を開く ↗</a></article>
+  </dialog>
+  <dialog id="reader-setup-dialog" class="reader-dialog reader-setup-dialog" aria-labelledby="reader-setup-title">
+    <div class="reader-toolbar"><h2 id="reader-setup-title">ページ内で本文を読む</h2><button id="reader-setup-close" type="button" autofocus>閉じる</button></div>
+    <div class="reader-article"><p>無料のSafari拡張を一度設定すると、対応記事の本文をMyNews内で読めます。取得した本文はこの端末だけに保存します。</p>
+      <ol><li><a href="https://apps.apple.com/jp/app/userscripts/id1463298887" target="_blank" rel="noopener noreferrer">無料のUserscriptsをインストール</a>し、一度アプリを開きます。</li><li>iPhoneの「設定 → アプリ → Safari → 機能拡張」でUserscriptsを有効にします。</li><li>Safariで<a href="./mynews-reader.user.js" target="_blank" rel="noopener noreferrer">MyNews用の補助スクリプト</a>を開き、Safariの機能拡張メニューからUserscriptsを選んでインストールします。</li><li>MyNewsをSafariで開き直し、Userscriptsの実行を許可します。「本文読書：接続済み」になれば準備完了です。媒体への接続許可が表示された場合は、利用する媒体だけ許可してください。</li></ol>
+      <p>ChatGPT内ブラウザーやホーム画面版では、Safari拡張が接続できない場合があります。本文読書はSafariで利用してください。</p>
+      <p>初回の本文取得には通信が必要です。「先読み」が有効なら先頭3件を取得します（1回の利用で最大12件）。本文は最大150件・7日間、端末内に保存します。会員限定記事や取得拒否がある記事は元記事で確認できます。</p>
+      <p><a href="./reader-help.html" target="_blank" rel="noopener noreferrer">詳しい設定方法・対応範囲</a></p>
+    </div>
+  </dialog>
+  <script src="./reader-core.js" defer></script>
+  <script src="./reader.js" defer></script>
   <script src="./app.js" defer></script>
 </body>
 </html>

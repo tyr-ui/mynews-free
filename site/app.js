@@ -129,16 +129,16 @@ function renderSourceHealth() {
 }
 function createCard(item) {
   const card = el('article', 'card' + (state.read.has(item.id) ? ' read' : ''));
+  card.dataset.articleId = item.id;
   const top = el('div', 'card-top');
   const cat = el('span', 'pill', item.category);
   const kind = el('span', 'pill ' + kindClass(item), kindLabel(item));
   const meta = el('span', 'meta', `${fmt(item.published_at)} ・ ${item.source}`);
   top.append(cat, kind, meta);
   const headline = el('h3');
-  const link = el('a', null, item.title);
-  link.href = isSafeUrl(item.url) ? item.url : '#';
-  link.target = '_blank'; link.rel = 'noopener noreferrer'; link.referrerPolicy = 'no-referrer';
-  link.addEventListener('click', () => {state.read.add(item.id); persist();});
+  const link = el('button', 'headline-button', item.title);
+  link.type = 'button';
+  link.addEventListener('click', () => window.MyNewsReader.open(item));
   headline.append(link);
   const snippet = el('p', 'excerpt', item.excerpt || '見出しの詳細は配信元で確認してください。');
   const footer = el('div', 'card-footer');
@@ -149,6 +149,10 @@ function createCard(item) {
   const read = el('button', state.read.has(item.id) ? 'selected' : '', state.read.has(item.id) ? '✓ 既読' : '✓ 既読にする');
   read.type = 'button'; read.addEventListener('click', () => {state.read.has(item.id) ? state.read.delete(item.id) : state.read.add(item.id); persist(); render();});
   left.append(save, read);
+  const inline = el('button', 'inline-read', window.MyNewsReader.isCached(item.id) ? '✓ 保存本文を読む' : '本文を読む');
+  inline.type = 'button'; inline.dataset.readerId = item.id;
+  inline.addEventListener('click', () => window.MyNewsReader.open(item));
+  left.prepend(inline);
   const open = el('a', 'open-link', '出典を開く ↗');
   open.href = isSafeUrl(item.url) ? item.url : '#'; open.target = '_blank'; open.rel = 'noopener noreferrer'; open.referrerPolicy = 'no-referrer';
   open.addEventListener('click', () => {state.read.add(item.id); persist();});
@@ -181,6 +185,7 @@ function render() {
     notice.hidden = false;
     notice.textContent = state.failures.every(source => source.startsWith('Bluesky') && source.includes('403')) ? 'Bluesky検索はHTTP 403で取得できていません。他のニュースは閲覧できます。詳細は「収集元の状況」を確認してください。' : `${state.failures.length}件の収集元でエラーがありました。詳細は「収集元の状況」を確認してください。`;
   } else notice.hidden = true;
+  window.MyNewsReader.schedule(all.slice(0, state.visible));
 }
 async function loadNews() {
   $('refresh').disabled = true;
@@ -212,5 +217,14 @@ document.querySelectorAll('[data-sort]').forEach(button => button.addEventListen
 $('unread').addEventListener('change', e => {state.unread = e.target.checked; render();});
 $('load-more').addEventListener('click', () => {state.visible += 36; render();});
 $('refresh').addEventListener('click', loadNews);
+document.addEventListener('mynews-reader-opened', event => {
+  state.read.add(event.detail.id); persist();
+  document.querySelectorAll('[data-article-id]').forEach(card => {if (card.dataset.articleId === event.detail.id) card.classList.add('read');});
+});
+document.addEventListener('mynews-reader-closed', () => {if (state.unread) render();});
+document.addEventListener('mynews-reader-ready', () => window.MyNewsReader.schedule(filtered().slice(0, state.visible)));
+document.addEventListener('mynews-body-cached', event => {
+  document.querySelectorAll('[data-reader-id]').forEach(button => {if (button.dataset.readerId === event.detail.id) button.textContent = '✓ 保存本文を読む';});
+});
 render(); loadNews();
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));

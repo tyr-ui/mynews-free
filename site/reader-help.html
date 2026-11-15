@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>MyNews 本文読書の設定</title><link rel="stylesheet" href="./style.css"></head>
+<body><main class="app reader-article reader-setup-dialog"><p><a href="./">← MyNewsに戻る</a></p><h1>MyNews内で記事を読む</h1>
+<p>対応する公開記事の本文を、その場で開いて読める機能です。最初の取得後は端末内に保存し、次に同じ記事を開くときは保存データを使います。本文をGitHubや外部の要約APIに送信しません。</p>
+<h2>iPhoneでの初回設定</h2><ol>
+<li><a href="https://apps.apple.com/jp/app/userscripts/id1463298887">App Storeの無料アプリ「Userscripts」</a>をインストールし、一度開きます。保存先フォルダーが自動で用意されます。</li>
+<li>「設定 → アプリ → Safari → 機能拡張 → Userscripts」を有効にします。</li>
+<li><strong>Safariで</strong><a href="./mynews-reader.user.js">MyNews Private Readerのスクリプト</a>を開きます。文字が表示されたページで、Safariのページメニューから「機能拡張 → Userscripts」を開き、インストールの表示を選びます。追加できない場合は、スクリプトをUserscriptsの保存先フォルダーへ保存する方法もあります。</li>
+<li><a href="./">MyNews</a>をSafariで開き直し、Userscriptsの実行を許可します。画面の「本文読書」が<strong>「接続済み」</strong>になれば、Safari側の補助機能との接続ができています。媒体への接続許可が求められた場合は、利用する媒体だけ許可します。</li>
+<li>見出し、または「本文を読む」をタップします。初回は本文を取得し、次回からは端末内の保存データを表示します。</li></ol>
+<h2>設定後の使い方</h2><ul><li>本文画面を閉じると、見ていたニュース一覧に戻ります。元記事のリンクも残しています。</li><li>先読みが有効なら、一覧の先頭3件を端末内へ取得します。通信量を抑える場合は先読みをオフにできます。自動先読みは1回の利用で最大12件です。</li><li>本文キャッシュは端末内に最大150件・7日間保存します。ブラウザーのサイトデータを消すと本文キャッシュも消えます。</li></ul>
+<h2>対応範囲と状態表示</h2><ul><li>スポニチ、サンスポ、デイリー、スポーツ報知、日刊スポーツ、産経新聞、Full-Count、BASEBALL KINGのほか、主なニュース・技術サイトを対象に本文抽出を試みます。すべての記事を取得できる保証はありません。</li><li>Google Newsの記事リンクは、元記事URLを特定してから本文を取得します。Google側でURLを特定できない場合は「本文未取得」と表示します。</li><li>会員限定・有料部分の解除や、アクセス拒否の回避は行いません。取得できない記事は配信抜粋と元記事リンクを表示します。</li><li>複数ページの記事は、同じ記事と確認できる続きがある場合に最大3ページを取得します。途中までの場合は「本文（一部）」と表示します。</li><li>AIによる生成要約ではありません。掲載ページの文章から本文部分を取り出します。取得日時を表示し、元記事へのリンクを残します。</li></ul>
+<h2>接続済みにならない場合</h2><p>ChatGPT内ブラウザーやホーム画面版ではSafari拡張が動作しない場合があります。Safariで直接開き、Userscriptsが有効か確認してください。プライベートブラウズでは別途許可が必要な場合があります。</p>
+<p>iPhone実機の拡張設定・接続確認は利用者側で行う必要があります。アプリの本文抽出・キャッシュ処理の検証と、iPhoneでの接続確認は別です。</p>
+<h2>使用しているソフトウェア</h2><p>本文抽出はMozilla Readability 0.6.0（Apache 2.0）、Google News URL解析はGoogle News URL Decoderの一部を利用・改変しています（MIT）。<a href="./vendor/READABILITY-LICENSE.txt">Readabilityのライセンス</a>／<a href="./vendor/GNEWS-DECODER-LICENSE.txt">URL Decoderのライセンス</a>。</p>
+<p>参照：<a href="https://github.com/quoid/userscripts#usage">Userscripts公式の導入手順</a>／<a href="https://support.apple.com/ja-jp/guide/iphone/iphab0432bf6/ios">AppleのSafari機能拡張ガイド</a></p>
+</main></body></html>
